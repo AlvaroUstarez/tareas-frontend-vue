@@ -22,11 +22,11 @@
                             <li v-for="(tarea, index) of listTareas" :key="index"
                             class="list-group-item d-flex justify-content-between">
                                 <span v-bind:class="{'text-success': tarea.estado}"
-                                    v-on:click="editarTarea(tarea, index)" class="cursor">
+                                    v-on:click="editarTarea(tarea, tarea.id)" class="cursor">
                                     <i v-bind:class="[tarea.estado ? 'fa-regular fa-circle-check': 'fa-regular fa-circle']"></i>
                                 </span>
                                 {{ tarea.nombre }}
-                                <span class="text-danger cursor" v-on:click="eliminarTarea(index)">
+                                <span class="text-danger cursor" v-on:click="eliminarTarea(tarea.id)">
                                     <i class="fa-regular fa-circle"></i>
                                 </span>
                             </li>
@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import axios from "axios";
     export default {
         name: 'TaRea',
         data(){
@@ -53,15 +54,44 @@
                     nombre: this.tarea,
                     estado: false
                 }
-                this.listTareas.push(tarea);
+                // this.listTareas.push(tarea);
+                axios.post("https://localhost:44388/api/Tarea/", tarea).then(response => {
+                    console.log(response);
+                    this.obtenerTareas();
+                }).catch(error => {
+                    console.error(error);
+                })
                 this.tarea = '';
             },
-            eliminarTarea(index){
-                this.listTareas.splice(index, 1)
+            eliminarTarea(id){
+                // this.listTareas.splice(index, 1)
+                axios.delete("https://localhost:44388/api/Tarea/" + id).then(response => {
+                    console.log(response);
+                    this.obtenerTareas();
+                }).catch(error => {
+                    console.error(error);
+                })
             },
-            editarTarea(tarea, index){
-                this.listTareas[index].estado = !tarea.estado;
+            editarTarea(tarea, id){
+                // this.listTareas[index].estado = !tarea.estado;
+                axios.put("https://localhost:44388/api/Tarea/" + id, tarea).then(response => {
+                    this.obtenerTareas();
+                    console.log(response);
+                }).catch(error => {
+                    console.error(error);
+                })
+
+            },
+            obtenerTareas(){
+                axios.get("https://localhost:44388/api/Tarea").then(response => {
+                    console.log(response);
+                    this.listTareas = response.data;
+                })
+
             }
+        },
+        created: function(){
+            this.obtenerTareas();
         }
     }
 </script>
