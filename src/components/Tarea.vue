@@ -59,7 +59,7 @@
                                 </button>
                             </td>
                             <td>
-                                <button v-on:click="eliminarTarea(index)" class="btn btn-danger btn-sm">
+                                <button v-on:click="eliminarTarea(tarea.id)" class="btn btn-danger btn-sm">
                                     eliminar
                                 </button>
                             </td>
@@ -72,7 +72,7 @@
 </template>
 
 <script>
-// import axios from "axios";
+import axios from "axios";
 export default {
     name: 'TaRea',
     data() {
@@ -110,19 +110,24 @@ export default {
 
             // Si se encontró una tarea con el mismo id, actualizar sus propiedades en lugar de agregar una nueva tarea
             if (tareaEncontradaIndex !== -1) {
-                this.listTareas[tareaEncontradaIndex] = nuevaTarea; // Actualizar la tarea existente con los nuevos datos
+                // this.listTareas[tareaEncontradaIndex] = nuevaTarea; // Actualizar la tarea existente con los nuevos datos
+                axios.put("https://localhost:44388/api/Tarea/" + this.tarea.id, nuevaTarea).then(response => {
+                    console.log('response editar tarea', response);
+                    this.obtenerTareas();
+                }).catch(error => {
+                    console.error(error);
+                })
             } else {
                 // Si no se encontró ninguna tarea con el mismo id, agregar la nueva tarea a la lista
-                this.listTareas.push(nuevaTarea);
+                // this.listTareas.push(nuevaTarea);
+                axios.post("https://localhost:44388/api/Tarea/", nuevaTarea).then(response => {
+                    console.log('response nueva tarea', response);
+                    this.obtenerTareas();
+                }).catch(error => {
+                    console.error(error);
+                })
             }
 
-            // this.listTareas.push(nuevaTarea);
-            // axios.post("https://localhost:44388/api/Tarea/", tarea).then(response => {
-            //     this.obtenerTareas();
-            // }).catch(error => {
-            //     console.error(error);
-            // })
-            
             this.tarea.id = null;
             this.tarea.tipoPropiedad = '';
             this.tarea.tipoOperacion = '';
@@ -133,12 +138,13 @@ export default {
             // console.log(nuevaTarea);
         },
         eliminarTarea(id) {
-            this.listTareas.splice(id, 1)
-            // axios.delete("https://localhost:44388/api/Tarea/" + id).then(response => {
-            //     this.obtenerTareas();
-            // }).catch(error => {
-            //     console.error(error);
-            // })
+            // this.listTareas.splice(id, 1)
+            axios.delete("https://localhost:44388/api/Tarea/" + id).then(response => {
+                console.log('eliminar tarea response', response);
+                this.obtenerTareas();
+            }).catch(error => {
+                console.error(error);
+            })
         },
         editarTarea(tarea, id) {
             console.log('Tarea', tarea.tipoPropiedad);
@@ -191,21 +197,18 @@ export default {
 
 
 
-            // axios.put("https://localhost:44388/api/Tarea/" + id, tarea).then(response => {
-            //     this.obtenerTareas();
-            // }).catch(error => {
-            //     console.error(error);
-            // })
+
 
         },
         obtenerTareas() {
-            return this.listTareas;
-            // axios.get("https://localhost:44388/api/Tarea").then(response => {
-            //     console.log(response);
-            //     this.listTareas = response.data;
-            // })
+            // return this.listTareas;
+            axios.get("https://localhost:44388/api/Tarea").then(response => {
+                console.debug(response);
+                this.listTareas = response.data;
+            })
 
         }
+        
     },
     created: function () {
         const nuevaTarea = {
